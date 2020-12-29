@@ -1,0 +1,104 @@
+{
+	"name": "live",
+	"displayName": "live",
+	"description": "Quickly start a local development server for static pages.",
+	"version": "0.0.1",
+	"publisher": "jeffalo",
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"*"
+	],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [
+			{
+				"command": "live.start",
+				"title": "Start a live server"
+			},
+			{
+				"command": "live.stop",
+				"title": "Stop a live server"
+			},
+			{
+				"command": "live.refreshList",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "live.deleteEntry",
+				"title": "Stop"
+			}
+		],
+		"views": {
+			"explorer": [
+				{
+					"id": "serverList",
+					"name": "Server List"
+				}
+			]
+		},
+		"menus": {
+			"view/title": [
+				{
+					"command": "live.refreshList",
+					"when": "view == serverList",
+					"group": "navigation"
+				},
+				{
+					"command": "live.start",
+					"when": "view == serverList"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "live.deleteEntry",
+					"when": "view == serverList"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "live.deleteEntry",
+					"when": "false"
+				},
+				{
+					"command": "live.refreshList",
+					"when": "false"
+				}
+			]
+		},
+		"viewsWelcome": [
+			{
+				"view": "serverList",
+				"contents": "No live servers running.\n[Start a live server](command:live.start)"
+			}
+		]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "npm run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.52.0",
+		"@types/glob": "^7.1.3",
+		"@types/mocha": "^8.0.4",
+		"@types/node": "^12.11.7",
+		"eslint": "^7.15.0",
+		"glob": "^7.1.6",
+		"mocha": "^8.1.3",
+		"typescript": "^4.1.2",
+		"vscode-test": "^1.4.1"
+	},
+	"dependencies": {
+		"detect-port": "^1.3.0",
+		"express": "^4.17.1"
+	}
+}
