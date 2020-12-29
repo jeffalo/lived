@@ -4,6 +4,7 @@
 	"description": "Quickly start a local development server for static pages.",
 	"version": "0.0.1",
 	"publisher": "jeffalo",
+	"repository": "https://github.com/jeffalo/live",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
