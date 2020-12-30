@@ -1,0 +1,8 @@
+<script>
+    var socket = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/jeffalo.lived/reload");
+    socket.onmessage = function (event) {
+        if (event.data == 'reload') {
+            document.location.reload()
+        }
+    };
+</script>
