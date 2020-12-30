@@ -2,6 +2,7 @@
 	"name": "lived",
 	"displayName": "lived",
 	"description": "Quickly start a local development server for static pages.",
+	"icon": "images/icon.png",
 	"version": "0.0.1",
 	"publisher": "jeffalo",
 	"repository": "https://github.com/jeffalo/lived",
