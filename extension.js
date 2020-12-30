@@ -2,6 +2,7 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const fs = require('fs')
+const path = require('path')
 const express = require('express')
 const detect = require('detect-port');
 
@@ -15,19 +16,19 @@ async function activate(context) {
 	var servers = []
 
 	let startCommand = vscode.commands.registerCommand('lived.start', async function () {
-		if(!vscode.workspace.workspaceFolders){
+		if (!vscode.workspace.workspaceFolders) {
 			return vscode.window.showErrorMessage('could not start live server, requires a workspace')
 		}
 		var folder = vscode.workspace.workspaceFolders[0]
 
-		if(vscode.workspace.workspaceFolders.length > 1) {
-			var folders = vscode.workspace.workspaceFolders.map(f=>f.uri.fsPath)
-			folderFsPath = await vscode.window.showQuickPick(folders,{
+		if (vscode.workspace.workspaceFolders.length > 1) {
+			var folders = vscode.workspace.workspaceFolders.map(f => f.uri.fsPath)
+			folderFsPath = await vscode.window.showQuickPick(folders, {
 				canPickMany: false,
 				ignoreFocusOut: true,
 				placeHolder: 'Choose a workspace path to host'
 			})
-			folder = vscode.workspace.workspaceFolders.find(f=>f.uri.fsPath == folderFsPath)
+			folder = vscode.workspace.workspaceFolders.find(f => f.uri.fsPath == folderFsPath)
 		}
 
 		var thePath = folder.uri.path
@@ -43,7 +44,7 @@ async function activate(context) {
 				}
 			}
 		})
-		if(!name) return
+		if (!name) return
 		const requestedPort = await vscode.window.showInputBox({
 			value: '5500',
 			prompt: 'Port',
@@ -77,8 +78,13 @@ async function activate(context) {
 		const server = app.listen(port, async () => {
 			let url = `http://localhost:${server.address().port}`
 			let copy = 'Copy'
+
+			function reload(){
+				console.log('todo')
+			}
+
 			servers.push({
-				name, port, server, url, folder
+				name, port, server, url, folder, reload
 			})
 			provider.refresh()
 			vscode.env.openExternal(url)
@@ -106,11 +112,11 @@ async function activate(context) {
 		}
 	})
 
-    vscode.commands.registerCommand('lived.deleteEntry', (node) => {
+	vscode.commands.registerCommand('lived.deleteEntry', (node) => {
 		var serverToStop = servers.find(s => s.name == node.label).server
 		serverToStop.close()
 		servers = servers.filter(s => s.name !== node.label)
-		provider.refresh()	
+		provider.refresh()
 	});
 
 	class serverProvider {
@@ -150,6 +156,16 @@ async function activate(context) {
 	let refreshCommand = vscode.commands.registerCommand('lived.refreshList', () => {
 		provider.refresh()
 	});
+
+	vscode.workspace.onDidSaveTextDocument(file => {
+		var fileFolderPath = path.dirname(file.uri.fsPath)
+		var server = servers.find(s=>s.folder.uri.fsPath == fileFolderPath)
+		if(server){
+			server.reload()
+		} else {
+			// console.log('file saved, but no server is running for it')
+		}
+	})
 
 	context.subscriptions.push(startCommand);
 	context.subscriptions.push(stopCommand);
