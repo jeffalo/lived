@@ -10,11 +10,11 @@ const detect = require('detect-port');
  */
 
 async function activate(context) {
-	console.log('Congratulations, your extension "live" is now active!');
+	//console.log('Congratulations, your extension "live" is now active!');
 
 	var servers = []
 
-	let startCommand = vscode.commands.registerCommand('live.start', async function () {
+	let startCommand = vscode.commands.registerCommand('lived.start', async function () {
 		if(!vscode.workspace.workspaceFolders){
 			return vscode.window.showErrorMessage('could not start live server, requires a workspace')
 		}
@@ -25,6 +25,7 @@ async function activate(context) {
 			folderFsPath = await vscode.window.showQuickPick(folders,{
 				canPickMany: false,
 				ignoreFocusOut: true,
+				placeHolder: 'Choose a workspace path to host'
 			})
 			folder = vscode.workspace.workspaceFolders.find(f=>f.uri.fsPath == folderFsPath)
 		}
@@ -33,6 +34,7 @@ async function activate(context) {
 
 		const name = await vscode.window.showInputBox({
 			value: thePath.substring(thePath.lastIndexOf('/') + 1),
+			prompt: 'Server name',
 			validateInput: function (input) {
 				if (servers.some(e => e.name === input)) {
 					return 'server with name exists'
@@ -44,7 +46,7 @@ async function activate(context) {
 		if(!name) return
 		const requestedPort = await vscode.window.showInputBox({
 			value: '5500',
-			prompt: 'port',
+			prompt: 'Port',
 			validateInput: function (input) {
 				var portCheck = /^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/
 				if (portCheck.test(input)) {
@@ -88,12 +90,13 @@ async function activate(context) {
 		})
 	});
 
-	let stopCommand = vscode.commands.registerCommand('live.stop', async function () {
+	let stopCommand = vscode.commands.registerCommand('lived.stop', async function () {
 		const serverNames = servers.map(s => s.name)
-		console.log(serverNames)
+		//console.log(serverNames)
 		const stopServer = await vscode.window.showQuickPick(serverNames, {
 			canPickMany: false,
 			ignoreFocusOut: true,
+			placeHolder: 'Choose a server to stop'
 		})
 		if (stopServer) {
 			var serverToStop = servers.find(s => s.name == stopServer).server
@@ -103,7 +106,7 @@ async function activate(context) {
 		}
 	})
 
-    vscode.commands.registerCommand('live.deleteEntry', (node) => {
+    vscode.commands.registerCommand('lived.deleteEntry', (node) => {
 		var serverToStop = servers.find(s => s.name == node.label).server
 		serverToStop.close()
 		servers = servers.filter(s => s.name !== node.label)
@@ -133,7 +136,7 @@ async function activate(context) {
 						arguments: [vscode.Uri.parse(s.url)]
 					}
 					item.description = s.url
-					console.log(s.port)
+					//console.log(s.port)
 					item.tooltip = s.folder.uri.fsPath
 					sendArray.push(item)
 				})
@@ -144,7 +147,7 @@ async function activate(context) {
 	const provider = new serverProvider();
 
 	vscode.window.registerTreeDataProvider('serverList', provider);
-	let refreshCommand = vscode.commands.registerCommand('live.refreshList', () => {
+	let refreshCommand = vscode.commands.registerCommand('lived.refreshList', () => {
 		provider.refresh()
 	});
 
@@ -153,7 +156,7 @@ async function activate(context) {
 	context.subscriptions.push(refreshCommand);
 
 	let myStatusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100)
-	myStatusBarItem.command = 'live.start'
+	myStatusBarItem.command = 'lived.start'
 	myStatusBarItem.text = '$(radio-tower) Start Live'
 	myStatusBarItem.show()
 

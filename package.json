@@ -1,10 +1,10 @@
 {
-	"name": "live",
-	"displayName": "live",
+	"name": "lived",
+	"displayName": "lived",
 	"description": "Quickly start a local development server for static pages.",
 	"version": "0.0.1",
 	"publisher": "jeffalo",
-	"repository": "https://github.com/jeffalo/live",
+	"repository": "https://github.com/jeffalo/lived",
 	"engines": {
 		"vscode": "^1.52.0"
 	},
@@ -18,15 +18,15 @@
 	"contributes": {
 		"commands": [
 			{
-				"command": "live.start",
+				"command": "lived.start",
 				"title": "Start a live server"
 			},
 			{
-				"command": "live.stop",
+				"command": "lived.stop",
 				"title": "Stop a live server"
 			},
 			{
-				"command": "live.refreshList",
+				"command": "lived.refreshList",
 				"title": "Refresh",
 				"icon": {
 					"light": "resources/light/refresh.svg",
@@ -34,7 +34,7 @@
 				}
 			},
 			{
-				"command": "live.deleteEntry",
+				"command": "lived.deleteEntry",
 				"title": "Stop"
 			}
 		],
@@ -49,28 +49,28 @@
 		"menus": {
 			"view/title": [
 				{
-					"command": "live.refreshList",
+					"command": "lived.refreshList",
 					"when": "view == serverList",
 					"group": "navigation"
 				},
 				{
-					"command": "live.start",
+					"command": "lived.start",
 					"when": "view == serverList"
 				}
 			],
 			"view/item/context": [
 				{
-					"command": "live.deleteEntry",
+					"command": "lived.deleteEntry",
 					"when": "view == serverList"
 				}
 			],
 			"commandPalette": [
 				{
-					"command": "live.deleteEntry",
+					"command": "lived.deleteEntry",
 					"when": "false"
 				},
 				{
-					"command": "live.refreshList",
+					"command": "lived.refreshList",
 					"when": "false"
 				}
 			]
@@ -78,7 +78,7 @@
 		"viewsWelcome": [
 			{
 				"view": "serverList",
-				"contents": "No live servers running.\n[Start a live server](command:live.start)"
+				"contents": "No live servers running.\n[Start a live server](command:lived.start)"
 			}
 		]
 	},
