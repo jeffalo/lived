@@ -1,5 +1,7 @@
 # `lived` for Visual Studio Code
 
+[![VSCode Marketplace](https://img.shields.io/vscode-marketplace/v/jeffalo.lived.svg?style=flat-square&label=vscode%20marketplace)](https://marketplace.visualstudio.com/items?itemName=jeffalo.lived) [![Total Installs](https://img.shields.io/vscode-marketplace/d/jeffalo.lived.svg?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ritwickdey.LiveServer)
+
 ![icon](images/icon.png)
 
 Quickly start a local development server for static pages.
