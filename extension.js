@@ -4,6 +4,7 @@ const vscode = require('vscode');
 const fs = require('fs')
 const path = require('path')
 const express = require('express')
+const serveStatic = require('./lib/serve-static')
 const detect = require('detect-port');
 
 /**
@@ -59,9 +60,17 @@ async function activate(context) {
 		})
 
 		const app = express()
+		var expressWs = require('express-ws')(app);
+
+		app.ws('/jeffalo.lived/reload', function (ws, req) {
+			ws.on('message', function (msg) {
+				ws.send(msg);
+			});
+		});
+
 		var port = await detect(requestedPort)
 
-		app.use(express.static(folder.uri.fsPath, {
+		app.use(serveStatic(folder.uri.fsPath, {
 			extensions: ['html', 'htm']
 		}))
 
@@ -79,8 +88,11 @@ async function activate(context) {
 			let url = `http://localhost:${server.address().port}`
 			let copy = 'Copy'
 
-			function reload(){
-				console.log('todo')
+			function reload() {
+				console.log(expressWs.getWss().clients)
+				expressWs.getWss().clients.forEach(ws => {
+					ws.send('reload')
+				})
 			}
 
 			servers.push({
@@ -159,8 +171,9 @@ async function activate(context) {
 
 	vscode.workspace.onDidSaveTextDocument(file => {
 		var fileFolderPath = path.dirname(file.uri.fsPath)
-		var server = servers.find(s=>s.folder.uri.fsPath == fileFolderPath)
-		if(server){
+		//console.log(fileFolderPath)
+		var server = servers.find(s => s.folder.uri.fsPath == fileFolderPath)
+		if (server) {
 			server.reload()
 		} else {
 			// console.log('file saved, but no server is running for it')
