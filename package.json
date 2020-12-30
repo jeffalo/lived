@@ -6,6 +6,10 @@
 	"version": "0.0.1",
 	"publisher": "jeffalo",
 	"repository": "https://github.com/jeffalo/lived",
+	"galleryBanner": {
+		"color": "#85004f",
+		"theme": "dark"
+	},
 	"engines": {
 		"vscode": "^1.52.0"
 	},
