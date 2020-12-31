@@ -77,7 +77,7 @@ async function activate(context) {
 		 */
 
 		app.get('*', async (req, res, next) => {
-			var filePath = path.join(folder.uri.fsPath, req.url)
+			var filePath = safeJoin(folder.uri.fsPath, req.url)
 			console.log(filePath)
 
 			// 1. check if the path doesn't end with .html
@@ -96,7 +96,7 @@ async function activate(context) {
 			fs.promises.access(filePath)
 				.then(async () => {
 					if (is_dir(filePath)) {
-						filePath = path.join(filePath, '/index.html')
+						filePath = safeJoin(filePath, '/index.html')
 					}
 					if (!filePath.endsWith('.html')) {
 						res.sendFile(filePath)
@@ -166,6 +166,15 @@ async function activate(context) {
 		if (child === parent) return false
 		const parentTokens = parent.split(path.sep).filter(i => i.length)
 		return parentTokens.every((t, i) => child.split(path.sep)[i] === t)
+	}
+
+	const safeJoin = (root, file) => {
+		const newPath = path.join(root, file)
+		// check for path traversal
+		if(newPath.indexOf(root) != 0){
+			return null;
+		}
+		return newPath;
 	}
 
 	let stopCommand = vscode.commands.registerCommand('lived.stop', async function () {
