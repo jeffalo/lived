@@ -1,5 +1,9 @@
 # Changelog
 
+### 0.4.1
+
+Experimental release (vscodeignore node_modules?)
+
 ### 0.2.0 / 0.3.0 / 0.4.0
 
 _failed to publish a couple times_
