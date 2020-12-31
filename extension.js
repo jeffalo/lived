@@ -163,9 +163,8 @@ async function activate(context) {
 	}
 
 	const isChildOf = (child, parent) => {
-		if (child === parent) return false
-		const parentTokens = parent.split(path.sep).filter(i => i.length)
-		return parentTokens.every((t, i) => child.split(path.sep)[i] === t)
+		const relative = path.relative(parent, child);
+		return relative && !relative.startsWith('..') && !path.isAbsolute(relative);
 	}
 
 	const safeJoin = (root, file) => {
