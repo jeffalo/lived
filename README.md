@@ -32,9 +32,11 @@ None right now
 
 N/A
 
-## Release Notes
+# Changelog
 
-Versions follow semver
+### 0.4.2
+
+Revert experimental changes from 0.4.1 😅
 
 ### 0.4.1
 
