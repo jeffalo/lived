@@ -1,5 +1,10 @@
 # Changelog
 
+### 0.4.3
+
+- Fix path traversal (thank you @GarboMuffin !!)
+- Works on linux (maybe)
+
 ### 0.4.2
 
 Revert experimental changes from 0.4.1 😅
