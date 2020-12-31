@@ -1,8 +1,25 @@
+
+<!-- start of code injected from jeffalo.lived -->
 <script>
-    var socket = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/jeffalo.lived/reload");
-    socket.onmessage = function (event) {
-        if (event.data == 'reload') {
-            document.location.reload()
-        }
-    };
+    (function () {
+        var socket = new WebSocket(((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/jeffalo.lived/reload");
+        socket.onmessage = function (event) {
+            if (event.data == 'welcome') {
+                console.log('jeffalo.lived: connected to local websocket server')
+            }
+            if (event.data == 'reload') {
+                document.location.reload()
+            }
+
+            if (event.data == 'reload-css') {
+                var links = document.getElementsByTagName("link");
+                for (var cl in links) {
+                    var link = links[cl];
+                    if (link.rel === "stylesheet")
+                        link.href += "";
+                }
+            }
+        };
+    })()
 </script>
+<!-- end of code injected from jeffalo.lived -->

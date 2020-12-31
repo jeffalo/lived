@@ -4,8 +4,11 @@ const vscode = require('vscode');
 const fs = require('fs')
 const path = require('path')
 const express = require('express')
-const serveStatic = require('./lib/serve-static')
 const detect = require('detect-port');
+const jsdom = require("jsdom");
+const { JSDOM } = jsdom;
+
+const inject = fs.readFileSync(__dirname + '/inject.html', 'utf-8')
 
 /**
  * @param {vscode.ExtensionContext} context
@@ -63,16 +66,54 @@ async function activate(context) {
 		var expressWs = require('express-ws')(app);
 
 		app.ws('/jeffalo.lived/reload', function (ws, req) {
-			ws.on('message', function (msg) {
-				ws.send(msg);
-			});
+			ws.send('welcome')
 		});
 
 		var port = await detect(requestedPort)
-
+		/* 
 		app.use(serveStatic(folder.uri.fsPath, {
 			extensions: ['html', 'htm']
 		}))
+		 */
+
+		app.get('*', async (req, res, next) => {
+			var filePath = path.join(folder.uri.fsPath, req.url)
+			console.log(filePath)
+
+			// 1. check if the path doesn't end with .html
+			// 2. check if the file path+html exists
+			// 3. if it does, then make that into the path
+			if (!filePath.endsWith('.html')) { // step 1
+				try { // step 2
+					await fs.promises.access(filePath + '.html')
+					filePath = filePath + '.html' // step3
+				}
+				catch {
+					console.log(filePath + '.html' + ' doesnt exist')
+				}
+			}
+
+			fs.promises.access(filePath)
+				.then(async () => {
+					if (is_dir(filePath)) {
+						filePath = path.join(filePath, '/index.html')
+					}
+					if (!filePath.endsWith('.html')) {
+						res.sendFile(filePath)
+					} else {
+						//its html so we need to inject the reload script
+						var html = await fs.promises.readFile(filePath, 'utf-8')
+						const dom = new JSDOM(html)
+
+						dom.window.document.body.innerHTML += inject
+
+						res.send(dom.serialize())
+					}
+				})
+				.catch(() => {
+					next()
+				})
+		})
 
 		app.use(function (req, res, next) {
 			res.status(404);
@@ -88,10 +129,13 @@ async function activate(context) {
 			let url = `http://localhost:${server.address().port}`
 			let copy = 'Copy'
 
-			function reload() {
+			function reload(fileType) {
 				console.log(expressWs.getWss().clients)
 				expressWs.getWss().clients.forEach(ws => {
-					ws.send('reload')
+					if(fileType == 'html') ws.send('reload')
+					if(fileType == 'js') ws.send('reload')
+
+					if(fileType == 'css') ws.send('reload-css')
 				})
 			}
 
@@ -107,6 +151,22 @@ async function activate(context) {
 			}
 		})
 	});
+
+	function is_dir(path) {
+		try {
+			var stat = fs.lstatSync(path);
+			return stat.isDirectory();
+		} catch (e) {
+			// lstatSync throws an error if path doesn't exist
+			return false;
+		}
+	}
+
+	const isChildOf = (child, parent) => {
+		if (child === parent) return false
+		const parentTokens = parent.split(path.sep).filter(i => i.length)
+		return parentTokens.every((t, i) => child.split(path.sep)[i] === t)
+	}
 
 	let stopCommand = vscode.commands.registerCommand('lived.stop', async function () {
 		const serverNames = servers.map(s => s.name)
@@ -170,11 +230,23 @@ async function activate(context) {
 	});
 
 	vscode.workspace.onDidSaveTextDocument(file => {
-		var fileFolderPath = path.dirname(file.uri.fsPath)
-		//console.log(fileFolderPath)
-		var server = servers.find(s => s.folder.uri.fsPath == fileFolderPath)
+		var server = servers.find(s => isChildOf(file.uri.fsPath, s.folder.uri.fsPath))
+
 		if (server) {
-			server.reload()
+			switch (path.extname(file.uri.fsPath)) {
+				case '.html':
+					server.reload('html')
+					break;
+				case '.js':
+					server.reload('js')
+					break;
+				case '.css':
+					server.reload('css')
+					break;
+				default:
+					// file was updated, but its not html,css or js. in the future this should be handled in an options menu
+					break;
+			}
 		} else {
 			// console.log('file saved, but no server is running for it')
 		}
