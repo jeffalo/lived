@@ -37,6 +37,10 @@ Coming soon
 
 ### 0.4.4
 
+- Move typescript to regular dependencies
+
+### 0.4.4
+
 - Supports live share
     - Servers get automatically shared (You may need to click allow)
 - Fixed bug with multiple servers running on the same folder
