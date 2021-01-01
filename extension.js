@@ -1,11 +1,13 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+const vsls = require('vsls')
 const fs = require('fs')
 const path = require('path')
 const express = require('express')
 const detect = require('detect-port');
 const jsdom = require("jsdom");
+const { couldStartTrivia } = require('typescript');
 const { JSDOM } = jsdom;
 
 const inject = fs.readFileSync(__dirname + '/inject.html', 'utf-8')
@@ -132,10 +134,10 @@ async function activate(context) {
 			function reload(fileType) {
 				console.log(expressWs.getWss().clients)
 				expressWs.getWss().clients.forEach(ws => {
-					if(fileType == 'html') ws.send('reload')
-					if(fileType == 'js') ws.send('reload')
+					if (fileType == 'html') ws.send('reload')
+					if (fileType == 'js') ws.send('reload')
 
-					if(fileType == 'css') ws.send('reload-css')
+					if (fileType == 'css') ws.send('reload-css')
 				})
 			}
 
@@ -143,6 +145,9 @@ async function activate(context) {
 				name, port, server, url, folder, reload
 			})
 			provider.refresh()
+			share({
+				name, port, server, url, folder, reload
+			})
 			vscode.env.openExternal(url)
 
 			var choice = await vscode.window.showInformationMessage(`Server listening at ${url}`, copy)
@@ -170,7 +175,7 @@ async function activate(context) {
 	const safeJoin = (root, file) => {
 		const newPath = path.join(root, file)
 		// check for path traversal
-		if(newPath.indexOf(root) != 0){
+		if (newPath.indexOf(root) != 0) {
 			return null;
 		}
 		return newPath;
@@ -189,6 +194,7 @@ async function activate(context) {
 			serverToStop.close()
 			servers = servers.filter(s => s.name !== stopServer)
 			provider.refresh()
+			unshare(stopServer)
 		}
 	})
 
@@ -197,6 +203,7 @@ async function activate(context) {
 		serverToStop.close()
 		servers = servers.filter(s => s.name !== node.label)
 		provider.refresh()
+		unshare(node.label)
 	});
 
 	class serverProvider {
@@ -238,9 +245,8 @@ async function activate(context) {
 	});
 
 	vscode.workspace.onDidSaveTextDocument(file => {
-		var server = servers.find(s => isChildOf(file.uri.fsPath, s.folder.uri.fsPath))
-
-		if (server) {
+		var savedServers = servers.filter(s => isChildOf(file.uri.fsPath, s.folder.uri.fsPath))
+		savedServers.forEach(server => {
 			switch (path.extname(file.uri.fsPath)) {
 				case '.html':
 					server.reload('html')
@@ -255,8 +261,54 @@ async function activate(context) {
 					// file was updated, but its not html,css or js. in the future this should be handled in an options menu
 					break;
 			}
-		} else {
-			// console.log('file saved, but no server is running for it')
+		})
+	})
+
+	var share = function () { } // share function used outside of the thing below
+	var unshare = function () { }
+
+	vsls.getApi().then(api => {
+		if (api) { // if Live Share is available (installed)
+			api.onDidChangeSession(event => {
+				var session = event.session
+
+				var disposables = []
+
+				function shareServer(server, session, api) {
+					if (server && session && api) {
+						if (session.role == vsls.Role.Host)
+							console.log('im going to share')
+						api.shareServer({
+							port: server.port,
+							displayName: server.name,
+							browseUrl: server.url
+						}).then(shared => {
+							disposables.push({
+								name: server.name,
+								disposable: shared
+							})
+						})
+					}
+				}
+
+				function unshareServer(name) {
+					var disposable = disposables.find(d => d.name == name)
+					disposable.disposable.dispose()
+				}
+
+				share = function (server) { // expose share function
+					shareServer(server, session, api)
+				}
+
+				unshare = function (name) { // expose share function
+					unshareServer(name)
+				}
+
+
+				servers.forEach(s => {
+					shareServer(s, session, api)
+				})
+			})
 		}
 	})
 

@@ -9,6 +9,11 @@ Quickly start a local development server for static pages.
 ## Features
 
 - Quickly start a local web-server to host static files
+- Live reload when files are saved
+
+    ![Live reload](images/live.gif)
+
+- Works great with Live Share
 - Imitate a GitHub pages environment
     - html file extension is not required
     - automatically route 404s to 404.html
@@ -26,13 +31,15 @@ Quickly start a local development server for static pages.
 
 ## Extension Settings
 
-None right now
-
-## Known Issues
-
-N/A
+Coming soon
 
 ## Changelog
+
+### 0.4.4
+
+- Supports live share
+    - Servers get automatically shared (You may need to click allow)
+- Fixed bug with multiple servers running on the same folder
 
 ### 0.4.3
 

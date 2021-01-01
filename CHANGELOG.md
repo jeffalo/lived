@@ -1,5 +1,11 @@
 # Changelog
 
+### 0.4.4
+
+- Supports live share
+    - Servers get automatically shared (You may need to click allow)
+- Fixed bug with multiple servers running on the same folder
+
 ### 0.4.3
 
 - Fix path traversal (thank you @GarboMuffin !!)
