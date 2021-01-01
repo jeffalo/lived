@@ -3,7 +3,7 @@
 	"displayName": "lived",
 	"description": "Quickly start a local development server for static pages.",
 	"icon": "images/icon.png",
-	"version": "0.4.4",
+	"version": "0.4.5",
 	"publisher": "jeffalo",
 	"repository": "https://github.com/jeffalo/lived",
 	"galleryBanner": {
