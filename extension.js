@@ -80,6 +80,7 @@ async function activate(context) {
 
 		app.get('*', async (req, res, next) => {
 			var filePath = safeJoin(folder.uri.fsPath, req.url)
+			filePath = filePath.split('?')[0] // remove query
 			console.log(filePath)
 
 			// 1. check if the path doesn't end with .html
@@ -88,10 +89,10 @@ async function activate(context) {
 			if (!filePath.endsWith('.html')) { // step 1
 				try { // step 2
 					await fs.promises.access(filePath + '.html')
-					filePath = filePath + '.html' // step3
+					filePath = filePath + '.html' // step 3
 				}
 				catch {
-					console.log(filePath + '.html' + ' doesnt exist')
+					// console.log(filePath + '.html' + ' doesnt exist')
 				}
 			}
 

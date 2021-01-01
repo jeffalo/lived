@@ -12,11 +12,8 @@
             }
 
             if (event.data == 'reload-css') {
-                var links = document.getElementsByTagName("link");
-                for (var cl in links) {
-                    var link = links[cl];
-                    if (link.rel === "stylesheet")
-                        link.href += "";
+                for (var link of document.querySelectorAll("link[rel=stylesheet]")) {
+                    link.href = link.href.replace(/\?.*|$/, "?" + Date.now())
                 }
             }
         };
